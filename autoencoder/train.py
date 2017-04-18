@@ -74,7 +74,7 @@ def autoencoder(layer_sizes=[784, 512, 256, 64]):
     ae['y'] = pl
     ae['dec_biases'] = dec_biases
 
-    cost = tf.reduce_mean(tf.square(ae['x'] - ae['y']))
+    cost = tf.sqrt(tf.reduce_mean(tf.square(ae['x'] - ae['y'])))
     ae['cost'] = cost
 
     return ae
@@ -82,22 +82,22 @@ def autoencoder(layer_sizes=[784, 512, 256, 64]):
 if __name__ == "__main__":
 
     plt.rcParams['image.cmap'] = 'gray'
-    lfw_people = fetch_lfw_people(min_faces_per_person=50, resize=0.4)
+    lfw_people = fetch_lfw_people(min_faces_per_person=150, resize=0.65)
     s = lfw_people.images.shape
 
     data = np.reshape(lfw_people.images,(s[0], s[1]*s[2]))
     data = data/255.
 
-    layer_sizes = [data.shape[1], 128]
+    layer_sizes = [data.shape[1], 96]
     tf.reset_default_graph()
     sess = tf.InteractiveSession()
     ae = autoencoder(layer_sizes=layer_sizes)
-    grad_op = tf.train.AdamOptimizer(0.003).minimize(ae['cost'])
+    grad_op = tf.train.AdamOptimizer(0.0004).minimize(ae['cost'])
 
     init = tf.global_variables_initializer()
     sess.run(init)
 
-    costs = run_epochs(220, 20)
+    costs = run_epochs(1000, 40)
 
     # Saving
     encoder_weights = sess.run(ae['encoder_w'])
